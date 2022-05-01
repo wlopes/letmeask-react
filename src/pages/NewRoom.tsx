@@ -1,15 +1,41 @@
 import illustrationImg from '../assets/images/illustration.svg'
 import logoImg from '../assets/images/logo.svg'
 import {Button} from '../components/Button'
-import {Link} from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
 
-import { useContext } from 'react'
+import { useContext, useState, FormEvent } from 'react'
 import { AuthContext } from '../contexts/AuthContext';
+
+import { database } from '../services/firebase'
+import { ref, set } from "firebase/database";
+
 
 import '../styles/auth.css'
 
 export function NewRoom(){
     const {user} = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const [newRoomName, setNewRoomName] = useState('')
+
+    async function handleCreateRoom(event: FormEvent){
+        event.preventDefault();
+
+        //Not allow empty name
+        if(newRoomName.trim() === ''){
+            return;
+        }
+
+        const room_ref = `${user?.id}_${newRoomName}`
+        await set(ref(database, `rooms/${room_ref}`),{
+            title:newRoomName,
+            authorId:user?.id
+        })
+
+        navigate(`../rooms/${room_ref}`)
+        
+    }
+
 
     return (
         <div id='page-auth'>
@@ -23,8 +49,11 @@ export function NewRoom(){
                     <img src={logoImg} alt="logotipo LetMeAsk" />                    
                     <h1>Olá {user?.name}</h1>
                     <h2>Criar uma nova sala</h2>
-                    <form>
-                        <input type="text" placeholder="Nome da Sala"/>
+                    <form onSubmit={handleCreateRoom}>
+                        <input type="text" placeholder="Nome da Sala"
+                            value={newRoomName}
+                            onChange = {event => setNewRoomName(event.target.value)}
+                        />
                         <Button type="submit">Criar Sala</Button>
                     </form>
                     <p className="existent-room-p">Quer entrar em uma sala existente? <Link to="/">Clique aqui</Link></p>
