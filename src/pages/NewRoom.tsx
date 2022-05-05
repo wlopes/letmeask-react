@@ -7,7 +7,7 @@ import { useContext, useState, FormEvent } from 'react'
 import { AuthContext } from '../contexts/AuthContext';
 
 import { database } from '../services/firebase'
-import { ref, set } from "firebase/database";
+import { push, ref } from "firebase/database";
 
 
 import '../styles/auth.css'
@@ -25,14 +25,13 @@ export function NewRoom(){
         if(newRoomName.trim() === ''){
             return;
         }
-
-        const room_ref = `${user?.id}_${newRoomName}`
-        await set(ref(database, `rooms/${room_ref}`),{
+        
+        const roomRef = await push(ref(database, `rooms/`),{
             title:newRoomName,
             authorId:user?.id
-        })
+        })        
 
-        navigate(`../rooms/${room_ref}`)
+        navigate(`../rooms/${roomRef.key}`)
         
     }
 

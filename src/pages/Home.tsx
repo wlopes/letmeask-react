@@ -37,8 +37,7 @@ export function Home(){
 
         onValue(roomRef,(snapshot) => {
             
-            const data = snapshot.val()
-            console.log(data)
+            const data = snapshot.val()            
             if( data && data.title && data.authorId){
                 navigate(`/rooms/${roomName}`)
             }else{
